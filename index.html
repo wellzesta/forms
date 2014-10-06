@@ -12,7 +12,7 @@
 <body>
 
 <!-- note the onsubmit="return doForm()" - your FORM tag must contain this -->
-<form action="" method="post" name="form1" id="form1" onsubmit="return doForm()">
+<form action="" method="post" name="form1" id="form1">
          <table width="450px">
             <tr>
                 <td valign="top">
@@ -57,27 +57,24 @@
             </tr>
             <tr>
                 <td valign="top">
-                    <label for="validation">Validation *      6 plus 9 is</label>
-                </td>
-                <td valign="top">
-                    <input  type="text" name="validation" maxlength="10" size="10">
+                    <input type="submit" name="button" id="submit" value="Submit" />
                 </td>
             </tr>
         </table>
-
-    Name: <input class="textInput" name="Name" type="text" id="name" size="55" maxlength="55" />
+    
  
+    <!-- the submit button -->
+    
+</form>
+
+<div id="captchaDiv">
     <!-- The reCAPTCHA wrapper is here - this is required!! -->
     <div id="recap"></div>
  
     <!-- the reCAPTCHA error div is next, edit/style as you see fit -->
     <div id="err" class="hidden" style="background-color:#FFFF00;color:#FF0000;margin:12px 0px 12px 0px;">The Captcha wasn't entered correctly. Please try again.</div>
- 
-    <!-- the submit button -->
-    <input type="submit" name="button" id="button" value="Submit" />
-</form>
-
-
+    <input type="submit" name="button" id="validate" value="Validate & Submit" />
+ </div>
 
     <h2>JSON</h2>
     <pre id="result">
@@ -89,105 +86,13 @@
     <!-- Scripts -->         
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+    <!-- 
+    <script> 
+        window.jQuery || document.write('<script src="js/jquery.js"></script>')
+    </script>
+     -->
     <script src="js/app.js"></script>
     
-    <script> 
-
-       $.fn.serializeObject = function() {
-        var o = {};
-        var a = this.serializeArray();
-        $.each(a, function() {
-            if (o[this.name] !== undefined) {
-                if (!o[this.name].push) {
-                    o[this.name] = [o[this.name]];
-                }
-                o[this.name].push(this.value || '');
-            } else {
-                o[this.name] = this.value || '';
-            }
-        });
-        return o;
-    };
-    
-    var json_id = $( "#result" );
-    if ( json_id.length ) {
-        json_id.hide();
-    };
-    var email_id = $('#email');
-    if ( email_id.length ) {
-        email_id.hide();
-    };
-
-    // $('form').submit(function() {
-    function send_form() {
-        var myObj = $('form').serializeObject();
-        var postStr = JSON.stringify(myObj); // creates a json object out of a JS object
-        // display the result         
-        json_id.text(postStr); 
-        json_id.slideDown();
-        myObj.jstr = postStr; // this adds a new jstr field to the javascript object.       
-        console.log(myObj);
-        // ajax call to send_mail.php
-        $.post("send_email.php", myObj, function(res){ 
-            email_id.text(res); 
-        });
-        email_id.slideDown(); 
-        return false;
-    };
-
-    // VALIDATE THE FORM
-    function doForm(){
-    // your form validation would go here, for example:
-    var isValid = $('#name').val().length != 0 ? true : false;
-    if (!isValid){ // FORM VALIDATION FAILED
-        alert('Name is required');
- 
-    } else { //FORM VALIDATION SUCCEEDED, validate the reCAPTCHA
-        recapVerify(); // verify reCAPTCHA
-    }
-    return false;
-    };
- 
-    // VALIDATE THE reCAPTCHA
-    function recapVerify(){
-        $.ajax({
-        type:'post',
-        url: 'captcha_proxy.php',
-        data: {
-            recaptcha_challenge_field:$('#recaptcha_challenge_field').val(),
-            recaptcha_response_field:$('#recaptcha_response_field').val()
-        }
-    }).done(function(data, textStatus, jqXHR){
-        if (data == 'success'){
-            $('#err').addClass('hidden');
-            send_form(); 
-            // document.forms[0].submit(); 
-        } else {
-            $('#err').removeClass('hidden');
-        }
-    }).fail(function(jqXHR,textStatus,errorThrown){
-            console.log('proxy or service failure');
-    });
-    };
- 
-    // WHEN CALLED THIS INSETS THE reCAPTCHA INTO THE PAGE
-    function reCapInsert(){
-        Recaptcha.create('6LdIgvsSAAAAAF8FrIu3yFH9axuEy9RhAXaYwMwx',  // public key
-        'recap',
-            {
-                theme: 'clean',
-                callback: Recaptcha.focus_response_field
-            }
-        );
-    };
-    
-    // WHEN THE DOM HAS LOADED FIRE THE reCapInsert FUNCTION TO INSERT THE reCAPTCHA    
-//    reCapInsert();
-    $( document ).ready(function(){
-        reCapInsert();
-    });
-
-    </script>
 </body>
 </html>
 
