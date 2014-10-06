@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title></title></head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+<script type="text/javascript">
+
+    // VALIDATE THE FORM
+    function doForm(){
+	// your form validation would go here, for example:
+	var isValid = $('#name').val().length != 0 ? true : false;
+
+	if (!isValid){ // FORM VALIDATION FAILED
+	    alert('Name is required');
+
+	} else { //FORM VALIDATION SUCCEEDED, validate the reCAPTCHA
+	    recapVerify(); // verify reCAPTCHA
+	}
+	return false;
+    }
+
+    // VALIDATE THE reCAPTCHA
+    function recapVerify(){
+        $.ajax({
+	    type:'post',
+	    url: 'captcha_proxy.php',
+	    data: {
+	        recaptcha_challenge_field:$('#recaptcha_challenge_field').val(),
+	        recaptcha_response_field:$('#recaptcha_response_field').val()
+	    }
+	}).done(function(data, textStatus, jqXHR){
+	    if (data == 'success'){
+	        $('#err').addClass('hidden');
+	        //document.forms[0].submit(); // uncomment this line to submit your form
+			alert('Success, the form and reCAPTCHA validated, your form was submitted');
+	    } else {
+	        $('#err').removeClass('hidden');
+	    }
+	}).fail(function(jqXHR,textStatus,errorThrown){
+            console.log('proxy or service failure');
+	});
+    }
+
+    // WHEN CALLED THIS INSETS THE reCAPTCHA INTO THE PAGE
+    function reCapInsert(){
+        Recaptcha.create('6LdQLugSAAAAACYnYFfmvj41sHNIj5xXvld8Q_tb',  // public key
+        'recap',
+            {
+                theme: 'clean',
+                callback: Recaptcha.focus_response_field
+            }
+	);
+    }
+
+    // WHEN THE DOM HAS LOADED FIRE THE reCapInsert FUNCTION TO INSERT THE reCAPTCHA
+    $( document ).ready(function(){
+        reCapInsert();
+    });
+	
+</script>
+<style type="text/css">
+	.hidden{
+		display:none;
+	}
+</style>
+<body>
+	<form action="test.php" method="post" name="form1" id="form1" onsubmit="return doForm()">
+		Name:
+		<input class="textInput" name="Name" type="text" id="name" size="55" maxlength="55" />
+		<div id="recap"></div>
+		<div id="err" class="hidden" style="background-color:#FFFF00;color:#FF0000;margin:12px 0px 12px 0px;">The Captcha wasn't entered correctly. Please try again.</div>
+		<input type="submit" name="button" id="button" value="Submit" />
+	</form>
+</body>
+</html>
